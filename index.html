@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ЛИНИЯ ФРОНТА</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#111;
+ color:#ddd;
+ font-family:Arial,Helvetica,sans-serif;
+ overflow-x:hidden
+}
+button{
+ border:1px solid #555;
+ background:linear-gradient(#3e4649,#202527);
+ color:#eee;
+ padding:10px 14px;
+ cursor:pointer;
+ font-weight:bold;
+ border-radius:3px
+}
+button:hover{background:linear-gradient(#566064,#293033)}
+button:active{transform:scale(.98)}
+.top{
+ height:64px;
+ background:linear-gradient(#252b2d,#111);
+ border-bottom:2px solid #555;
+ display:flex;
+ align-items:center;
+ gap:12px;
+ padding:8px 14px;
+ position:sticky;
+ top:0;
+ z-index:20
+}
+.logo{
+ font-size:22px;
+ font-weight:900;
+ color:#d2b15b;
+ white-space:nowrap
+}
+.stats{
+ display:flex;
+ gap:8px;
+ flex:1;
+ overflow:auto
+}
+.res{
+ background:#1c2021;
+ border:1px solid #454a4b;
+ padding:8px 12px;
+ min-width:105px;
+ border-radius:3px;
+ text-align:center
+}
+.res b{color:#e2c46b}
+.main{
+ display:flex;
+ min-height:calc(100vh - 64px)
+}
+.side{
+ width:205px;
+ background:#191d1e;
+ border-right:1px solid #444;
+ padding:10px;
+ flex-shrink:0
+}
+.nav{
+ width:100%;
+ margin-bottom:7px;
+ text-align:left
+}
+.nav.active{
+ background:linear-gradient(#765f30,#453718);
+ border-color:#9e8244
+}
+.content{
+ flex:1;
+ padding:18px;
+ max-width:1400px;
+ margin:auto
+}
+.page{display:none}
+.page.active{display:block}
+.title{
+ font-size:27px;
+ color:#d5b866;
+ margin-bottom:5px;
+ font-weight:bold
+}
+.sub{color:#888;margin-bottom:18px}
+.panel{
+ background:#1b1f20;
+ border:1px solid #444;
+ box-shadow:0 5px 20px #0008;
+ padding:15px;
+ margin-bottom:15px
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+ gap:12px
+}
+.card{
+ background:linear-gradient(145deg,#292f30,#171a1b);
+ border:1px solid #4b5051;
+ padding:14px;
+ border-radius:4px
+}
+.card h3{margin:0 0 8px;color:#d5b866}
+.big{
+ font-size:35px;
+ margin:10px 0;
+ color:#eee
+}
+.progress{
+ height:9px;
+ background:#080909;
+ border:1px solid #333;
+ margin:8px 0;
+ overflow:hidden
+}
+.bar{
+ height:100%;
+ background:#a48642;
+ width:0%
+}
+.badge{
+ display:inline-block;
+ padding:4px 7px;
+ background:#303638;
+ border:1px solid #555;
+ font-size:12px;
+ margin:2px
+}
+.base{
+ position:relative;
+ height:520px;
+ overflow:hidden;
+ border:2px solid #555;
+ background:
+ radial-gradient(circle at 30% 30%,#40513a 0 2%,transparent 3%),
+ radial-gradient(circle at 70% 70%,#31412f 0 3%,transparent 4%),
+ repeating-linear-gradient(25deg,#273326 0,#273326 35px,#293829 36px,#293829 70px);
+}
+.base:after{
+ content:"";
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ background:linear-gradient(90deg,#0002,#fff0,#0004)
+}
+.road{
+ position:absolute;
+ background:#252827;
+ border:1px solid #353837;
+ transform:rotate(-20deg);
+ width:120%;
+ height:60px;
+ left:-10%;
+ top:45%
+}
+.road2{
+ position:absolute;
+ background:#252827;
+ width:70px;
+ height:120%;
+ left:48%;
+ top:-10%;
+ transform:rotate(17deg)
+}
+.building{
+ position:absolute;
+ width:120px;
+ height:85px;
+ background:linear-gradient(#69706e,#303636);
+ border:3px solid #777;
+ box-shadow:0 5px 12px #000b;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ align-items:center;
+ text-align:center;
+ cursor:pointer;
+ z-index:3
+}
+.building:hover{filter:brightness(1.25)}
+.building .ico{font-size:28px}
+.building small{color:#ddd}
+.b1{left:5%;top:8%}
+.b2{left:40%;top:8%}
+.b3{right:5%;top:12%}
+.b4{left:13%;bottom:10%}
+.b5{left:45%;bottom:12%}
+.b6{right:7%;bottom:8%}
+.command{
+ position:absolute;
+ left:39%;
+ top:42%;
+ width:170px;
+ height:100px;
+ background:linear-gradient(#66552d,#30291a);
+ border:4px solid #9a8247;
+ z-index:4
+}
+.map{
+ min-height:570px;
+ position:relative;
+ overflow:hidden;
+ background:
+ linear-gradient(35deg,#243322 25%,transparent 25%) 0 0/80px 80px,
+ linear-gradient(-35deg,#283827 25%,transparent 25%) 0 0/90px 90px,
+ #1d2a1d;
+ border:2px solid #555
+}
+.map:before{
+ content:"";
+ position:absolute;
+ width:180%;
+ height:4px;
+ background:#9b3434;
+ top:50%;
+ left:-20%;
+ transform:rotate(-16deg);
+ box-shadow:0 80px 0 #9b3434,0 -90px 0 #9b3434;
+ opacity:.5
+}
+.node{
+ position:absolute;
+ width:105px;
+ min-height:75px;
+ background:#202526eF;
+ border:2px solid #888;
+ padding:8px;
+ text-align:center;
+ z-index:2;
+ cursor:pointer
+}
+.node:hover{border-color:#d5b866}
+.node.enemy{border-color:#9a4545}
+.node.own{border-color:#638c54}
+.n1{left:8%;top:12%}
+.n2{left:36%;top:22%}
+.n3{right:10%;top:15%}
+.n4{left:18%;top:58%}
+.n5{left:52%;top:55%}
+.n6{right:7%;bottom:8%}
+.n7{left:42%;bottom:4%}
+.mission{
+ border-left:4px solid #9d8040;
+ padding:12px;
+ background:#222627;
+ margin-bottom:10px
+}
+.mission h3{margin:0 0 7px;color:#d5b866}
+.unit{
+ display:flex;
+ gap:12px;
+ align-items:center
+}
+.unitIcon{
+ width:65px;
+ height:65px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:38px;
+ background:#111;
+ border:1px solid #555
+}
+.modal{
+ position:fixed;
+ inset:0;
+ background:#000b;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ z-index:100
+}
+.modal.open{display:flex}
+.modalBox{
+ width:min(620px,92vw);
+ max-height:90vh;
+ overflow:auto;
+ background:#1b1f20;
+ border:2px solid #777;
+ padding:20px;
+ box-shadow:0 10px 40px #000
+}
+.modalBox h2{color:#d5b866}
+.shopItem{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ border-bottom:1px solid #444;
+ padding:12px 0
+}
+.log{
+ background:#0b0d0d;
+ border:1px solid #333;
+ padding:10px;
+ height:180px;
+ overflow:auto;
+ font-family:monospace;
+ font-size:13px
+}
+.log div{margin-bottom:4px}
+.good{color:#7db56b}
+.bad{color:#d66b61}
+.warn{color:#d3b85e}
+.hidden{display:none}
+@media(max-width:760px){
+ .side{
+  width:62px;
+  padding:6px
+ }
+ .nav{
+  font-size:0;
+  text-align:center;
+  padding:12px 4px
+ }
+ .nav:first-letter{font-size:20px}
+ .logo{font-size:16px}
+ .res{min-width:85px;font-size:12px}
+ .content{padding:10px}
+ .base{height:430px}
+ .building{width:90px;height:68px;font-size:11px}
+ .command{width:120px;height:75px}
+ .node{width:88px;font-size:11px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+ <div class="logo">⚔ ЛИНИЯ ФРОНТА</div>
+
+ <div class="stats">
+  <div class="res">💰 <b id="money">5000</b></div>
+  <div class="res">⛽ <b id="fuel">850</b></div>
+  <div class="res">🔩 <b id="metal">1200</b></div>
+  <div class="res">🍖 <b id="food">900</b></div>
+  <div class="res">⭐ Уровень <b id="level">1</b></div>
+ </div>
+
+ <button onclick="saveGame()">💾</button>
+</header>
+
+<div class="main">
+
+<aside class="side">
+ <button class="nav active" onclick="page('base',this)">🏠 База</button>
+ <button class="nav" onclick="page('army',this)">🪖 Армия</button>
+ <button class="nav" onclick="page('map',this)">🗺️ Карта</button>
+ <button class="nav" onclick="page('missions',this)">🎯 Миссии</button>
+ <button class="nav" onclick="page('shop',this)">🏪 Магазин</button>
+ <button class="nav" onclick="page('research',this)">🔬 Исследования</button>
+ <button class="nav" onclick="page('stats',this)">📊 Статистика</button>
+</aside>
+
+<main class="content">
+
+<!-- BASE -->
+<section id="base" class="page active">
+
+ <div class="title">Военная база</div>
+ <div class="sub">Ваш главный штаб. Развивайте инфраструктуру и готовьте войска.</div>
+
+ <div class="grid">
+
+  <div class="card">
+   <h3>Штаб</h3>
+   <div class="big">🏢 <span id="hqLevel">1</span></div>
+   <div>Уровень командования</div>
+   <div class="progress"><div class="bar" id="hqBar"></div></div>
+   <button onclick="upgradeHQ()">⬆ Улучшить</button>
+  </div>
+
+  <div class="card">
+   <h3>Население</h3>
+   <div class="big">👥 <span id="population">48</span></div>
+   <div>Гарнизон и персонал</div>
+  </div>
+
+  <div class="card">
+   <h3>Боевой дух</h3>
+   <div class="big">🔥 <span id="morale">76</span>%</div>
+   <div class="progress"><div class="bar" id="moraleBar"></div></div>
+  </div>
+
+ </div>
+
+ <div class="panel">
+  <h2>Территория базы</h2>
+
+  <div class="base">
+
+   <div class="road"></div>
+   <div class="road2"></div>
+
+   <div class="building b1" onclick="building('Казармы','Здесь размещается пехота.')">
+    <div class="ico">🪖</div>
+    <small>Казармы</small>
+   </div>
+
+   <div class="building b2" onclick="building('Автопарк','Производство и обслуживание техники.')">
+    <div class="ico">🚛</div>
+    <small>Автопарк</small>
+   </div>
+
+   <div class="building b3" onclick="building('Склад','Хранение ресурсов.')">
+    <div class="ico">📦</div>
+    <small>Склад</small>
+   </div>
+
+   <div class="building b4" onclick="building('Артиллерийский парк','Тяжёлое вооружение.')">
+    <div class="ico">💥</div>
+    <small>Артпарк</small>
+   </div>
+
+   <div class="building b5" onclick="building('Центр разведки','Разведданные о противнике.')">
+    <div class="ico">📡</div>
+    <small>Разведка</small>
+   </div>
+
+   <div class="building b6" onclick="building('Госпиталь','Восстановление раненых.')">
+    <div class="ico">🏥</div>
+    <small>Госпиталь</small>
+   </div>
+
+   <div class="building command">
+    <div class="ico">⭐</div>
+    <b>КОМАНДНЫЙ ЦЕНТР</b>
+    <small>Штаб операции</small>
+   </div>
+
+  </div>
+ </div>
+
+ <div class="panel">
+  <h2>Производство ресурсов</h2>
+
+  <div class="grid">
+   <div class="card">
+    <h3>Металлургический цех</h3>
+    <p>🔩 +25 металла / мин.</p>
+    <button onclick="collect('metal',25)">Получить</button>
+   </div>
+
+   <div class="card">
+    <h3>Топливный резервуар</h3>
+    <p>⛽ +15 топлива / мин.</p>
+    <button onclick="collect('fuel',15)">Получить</button>
+   </div>
+
+   <div class="card">
+    <h3>Поле снабжения</h3>
+    <p>🍖 +20 продовольствия / мин.</p>
+    <button onclick="collect('food',20)">Получить</button>
+   </div>
+  </div>
+ </div>
+
+</section>
+
+<!-- ARMY -->
+<section id="army" class="page">
+
+ <div class="title">Армия</div>
+ <div class="sub">Ваши боевые подразделения.</div>
+
+ <div class="grid">
+
+  <div class="card">
+   <div class="unit">
+    <div class="unitIcon">🪖</div>
+    <div>
+     <h3>Пехота</h3>
+     <b id="infantry">25</b> бойцов
+    </div>
+   </div>
+   <hr>
+   <span class="badge">⚔ 12 атака</span>
+   <span class="badge">🛡 8 защита</span>
+   <span class="badge">💨 15 скорость</span>
+   <p>Универсальные солдаты.</p>
+   <button onclick="recruit('infantry')">Нанять — 💰100</button>
+  </div>
+
+  <div class="card">
+   <div class="unit">
+    <div class="unitIcon">🔫</div>
+    <div>
+     <h3>Штурмовики</h3>
+     <b id="assault">8</b> бойцов
+    </div>
+   </div>
+   <hr>
+   <span class="badge">⚔ 20 атака</span>
+   <span class="badge">🛡 10 защита</span>
+   <p>Сильны в ближнем бою.</p>
+   <button onclick="recruit('assault')">Нанять — 💰180</button>
+  </div>
+
+  <div class="card">
+   <div class="unit">
+    <div class="unitIcon">🎯</div>
+    <div>
+     <h3>Снайперы</h3>
+     <b id="sniper">4</b> бойца
+    </div>
+   </div>
+   <hr>
+   <span class="badge">⚔ 35 атака</span>
+   <span class="badge">🛡 5 защита</span>
+   <p>Точная дальняя атака.</p>
+   <button onclick="recruit('sniper')">Нанять — 💰300</button>
+  </div>
+
+  <div class="card">
+   <div class="unit">
+    <div class="unitIcon">🚙</div>
+    <div>
+     <h3>Бронемашины</h3>
+     <b id="apc">3</b> единицы
+    </div>
+   </div>
+   <hr>
+   <span class="badge">⚔ 50 атака</span>
+   <span class="badge">🛡 45 защита</span>
+   <p>Мобильная бронетехника.</p>
+   <button onclick="recruit('apc')">Произвести — 💰800</button>
+  </div>
+
+  <div class="card">
+   <div class="unit">
+    <div class="unitIcon">💥</div>
+    <div>
+     <h3>Артиллерия</h3>
+     <b id="artillery">2</b> орудия
+    </div>
+   </div>
+   <hr>
+   <span class="badge">⚔ 80 атака</span>
+   <span class="badge">🛡 20 защита</span>
+   <p>Мощный дальний огонь.</p>
+   <button onclick="recruit('artillery')">Произвести — 💰1200</button>
+  </div>
+
+ </div>
+
+ <div class="panel">
+  <h2>Общая сила армии: <span id="armyPower">0</span></h2>
+  <button onclick="openBattle()">⚔ Провести тренировочный бой</button>
+ </div>
+
+</section>
+
+<!-- MAP -->
+<section id="map" class="page">
+
+ <div class="title">Карта фронта</div>
+ <div class="sub">Исследуйте территории и проводите военные операции.</div>
+
+ <div class="panel">
+  <div class="map">
+
+   <div class="node own n1" onclick="attackNode(1)">
+    🏠<br><b>Ваша база</b><br>
+    <span class="good">Контроль</span>
+   </div>
+
+   <div class="node enemy n2" onclick="attackNode(2)">
+    🏚️<br><b>Старая ферма</b><br>
+    Враг: 40
+   </div>
+
+   <div class="node enemy n3" onclick="attackNode(3)">
+    🏭<br><b>Завод</b><br>
+    Враг: 75
+   </div>
+
+   <div class="node enemy n4" onclick="attackNode(4)">
+    🛣️<br><b>Перекрёсток</b><br>
+    Враг: 90
+   </div>
+
+   <div class="node enemy n5" onclick="attackNode(5)">
+    🏰<br><b>Форт</b><br>
+    Враг: 160
+   </div>
+
+   <div class="node enemy n6" onclick="attackNode(6)">
+    📡<br><b>Радиостанция</b><br>
+    Враг: 120
+   </div>
+
+   <div class="node enemy n7" onclick="attackNode(7)">
+    ⭐<br><b>Штаб противника</b><br>
+    Враг: 300
+   </div>
+
+  </div>
+ </div>
+
+</section>
+
+<!-- MISSIONS -->
+<section id="missions" class="page">
+
+ <div class="title">Боевые задания</div>
+ <div class="sub">Выполняйте операции и получайте награды.</div>
+
+ <div class="mission">
+  <h3>🎯 Разведка района</h3>
+  <p>Отправьте разведчиков для получения информации.</p>
+  <span class="badge">Награда: 💰500</span>
+  <span class="badge">⭐ +20 XP</span>
+  <br><br>
+  <button onclick="mission(1)">Начать</button>
+ </div>
+
+ <div class="mission">
+  <h3>⚔ Удар по складу</h3>
+  <p>Нанесите удар по вражескому складу снабжения.</p>
+  <span class="badge">Награда: 💰1000</span>
+  <span class="badge">🔩 +300</span>
+  <span class="badge">⭐ +40 XP</span>
+  <br><br>
+  <button onclick="mission(2)">Начать</button>
+ </div>
+
+ <div class="mission">
+  <h3>🔥 Прорыв линии</h3>
+  <p>Прорвать оборону противника и открыть новый участок фронта.</p>
+  <span class="badge">Награда: 💰2500</span>
+  <span class="badge">⭐ +100 XP</span>
+  <br><br>
+  <button onclick="mission(3)">Начать</button>
+ </div>
+
+ <div class="mission">
+  <h3>🏆 Генеральное наступление</h3>
+  <p>Атаковать вражеский командный пункт.</p>
+  <span class="badge">Награда: 💰7500</span>
+  <span class="badge">⭐ +300 XP</span>
+  <br><br>
+  <button onclick="mission(4)">Начать</button>
+ </div>
+
+</section>
+
+<!-- SHOP -->
+<section id="shop" class="page">
+
+ <div class="title">Военный магазин</div>
+ <div class="sub">Снабжение армии.</div>
+
+ <div class="panel">
+
+  <div class="shopItem">
+   <div>
+    <b>📦 Ящик боеприпасов</b><br>
+    +100 к боезапасу
+   </div>
+   <button onclick="buy('ammo')">💰300</button>
+  </div>
+
+  <div class="shopItem">
+   <div>
+    <b>⛽ Топливный контейнер</b><br>
+    +250 топлива
+   </div>
+   <button onclick="buy('fuel')">💰400</button>
+  </div>
+
+  <div class="shopItem">
+   <div>
+    <b>🔧 Ремкомплект</b><br>
+    Восстановление техники
+   </div>
+   <button onclick="buy('repair')">💰600</button>
+  </div>
+
+  <div class="shopItem">
+   <div>
+    <b>📡 Разведданные</b><br>
+    +50 XP
+   </div>
+   <button onclick="buy('intel')">💰800</button>
+  </div>
+
+ </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research" class="page">
+
+ <div class="title">Исследования</div>
+ <div class="sub">Развивайте технологии армии.</div>
+
+ <div class="grid">
+
+  <div class="card">
+   <h3>🔫 Современное оружие</h3>
+   <p>Атака пехоты +10%.</p>
+   <div class="progress"><div class="bar" id="r1"></div></div>
+   <button onclick="research(1)">Исследовать — 🔩500</button>
+  </div>
+
+  <div class="card">
+   <h3>🛡 Броня</h3>
+   <p>Защита техники +15%.</p>
+   <div class="progress"><div class="bar" id="r2"></div></div>
+   <button onclick="research(2)">Исследовать — 🔩800</button>
+  </div>
+
+  <div class="card">
+   <h3>📡 Военная разведка</h3>
+   <p>Шанс успешной операции +10%.</p>
+   <div class="progress"><div class="bar" id="r3"></div></div>
+   <button onclick="research(3)">Исследовать — 🔩1000</button>
+  </div>
+
+  <div class="card">
+   <h3>🚀 Ракетные технологии</h3>
+   <p>Очень мощные дальние удары.</p>
+   <div class="progress"><div class="bar" id="r4"></div></div>
+   <button onclick="research(4)">Исследовать — 🔩1500</button>
+  </div>
+
+ </div>
+</section>
+
+<!-- STATS -->
+<section id="stats" class="page">
+
+ <div class="title">Статистика</div>
+
+ <div class="grid">
+  <div class="card">
+   <h3>🏆 Победы</h3>
+   <div class="big" id="wins">0</div>
+  </div>
+
+  <div class="card">
+   <h3>💀 Поражения</h3>
+   <div class="big" id="losses">0</div>
+  </div>
+
+  <div class="card">
+   <h3>🎯 Операции</h3>
+   <div class="big" id="operations">0</div>
+  </div>
+
+  <div class="card">
+   <h3>⭐ Опыт</h3>
+   <div class="big" id="xp">0</div>
+  </div>
+ </div>
+
+ <div class="panel">
+  <h2>Журнал командования</h2>
+  <div class="log" id="log"></div>
+ </div>
+
+ <button onclick="resetGame()">⚠ Сбросить прогресс</button>
+
+</section>
+
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+ <div class="modalBox">
+  <h2 id="modalTitle">Операция</h2>
+  <div id="modalText"></div>
+  <br>
+  <button onclick="closeModal()">Закрыть</button>
+ </div>
+</div>
+
+<script>
+
+/* =========================
+   GAME DATA
+========================= */
+
+let game = {
+ money:5000,
+ fuel:850,
+ metal:1200,
+ food:900,
+
+ level:1,
+ xp:0,
+
+ hq:1,
+ population:48,
+ morale:76,
+
+ infantry:25,
+ assault:8,
+ sniper:4,
+ apc:3,
+ artillery:2,
+
+ wins:0,
+ losses:0,
+ operations:0,
+
+ research:{
+  r1:0,
+  r2:0,
+  r3:0,
+  r4:0
+ }
+};
+
+const saved = localStorage.getItem("frontline_save");
+
+if(saved){
+ try{
+  game = {...game,...JSON.parse(saved)};
+  game.research = {...{
+   r1:0,r2:0,r3:0,r4:0
+  },...(game.research||{})};
+ }catch(e){}
+}
+
+/* =========================
+   UI
+========================= */
+
+function $(id){
+ return document.getElementById(id);
+}
+
+function update(){
+
+ $("money").textContent=Math.floor(game.money);
+ $("fuel").textContent=Math.floor(game.fuel);
+ $("metal").textContent=Math.floor(game.metal);
+ $("food").textContent=Math.floor(game.food);
+
+ $("level").textContent=game.level;
+ $("hqLevel").textContent=game.hq;
+ $("population").textContent=game.population;
+ $("morale").textContent=game.morale;
+
+ $("infantry").textContent=game.infantry;
+ $("assault").textContent=game.assault;
+ $("sniper").textContent=game.sniper;
+ $("apc").textContent=game.apc;
+ $("artillery").textContent=game.artillery;
+
+ $("wins").textContent=game.wins;
+ $("losses").textContent=game.losses;
+ $("operations").textContent=game.operations;
+ $("xp").textContent=game.xp;
+
+ $("moraleBar").style.width=game.morale+"%";
+
+ let hqProgress=Math.min(100,game.hq*20);
+ $("hqBar").style.width=hqProgress+"%";
+
+ for(let i=1;i<=4;i++){
+  $("r"+i).style.width=game.research["r"+i]+"%";
+ }
+
+ armyPower();
+
+ saveGame(false);
+}
+
+function saveGame(show=true){
+
+ localStorage.setItem(
+  "frontline_save",
+  JSON.stringify(game)
+ );
+
+ if(show) log("Игра сохранена.","good");
+}
+
+function log(text,type=""){
+
+ let el=$("log");
+
+ if(!el)return;
+
+ let d=document.createElement("div");
+
+ d.className=type;
+
+ let time=new Date().toLocaleTimeString();
+
+ d.textContent="["+time+"] "+text;
+
+ el.prepend(d);
+}
+
+function page(id,btn){
+
+ document.querySelectorAll(".page")
+  .forEach(x=>x.classList.remove("active"));
+
+ document.querySelectorAll(".nav")
+  .forEach(x=>x.classList.remove("active"));
+
+ $(id).classList.add("active");
+
+ if(btn)btn.classList.add("active");
+}
+
+/* =========================
+   RESOURCES
+========================= */
+
+function collect(type,value){
+
+ game[type]+=value;
+
+ log("Получено: "+value+" "+type+".","good");
+
+ update();
+}
+
+function upgradeHQ(){
+
+ let cost=game.hq*3000;
+
+ if(game.money<cost){
+
+  modal(
+   "Недостаточно средств",
+   "Для улучшения штаба требуется 💰"+cost+"."
+  );
+
+  return;
+ }
+
+ game.money-=cost;
+ game.hq++;
+
+ game.population+=12;
+ game.morale=Math.min(100,game.morale+4);
+
+ log("Штаб улучшен до уровня "+game.hq+".","good");
+
+ update();
+}
+
+/* =========================
+   BUILDINGS
+========================= */
+
+function building(name,text){
+
+ modal(
+  name,
+  "<p>"+text+"</p>"+
+  "<p>Уровень здания: <b>"+game.hq+"</b></p>"+
+  "<button onclick='upgradeBuilding(\""+name+"\")'>⬆ Улучшить</button>"
+ );
+}
+
+function upgradeBuilding(name){
+
+ let cost=500*game.hq;
+
+ if(game.money<cost){
+
+  alert("Недостаточно денег.");
+
+  return;
+ }
+
+ game.money-=cost;
+
+ log(name+" улучшено.","good");
+
+ closeModal();
+
+ update();
+}
+
+/* =========================
+   ARMY
+========================= */
+
+function recruit(type){
+
+ const costs={
+  infantry:100,
+  assault:180,
+  sniper:300,
+  apc:800,
+  artillery:1200
+ };
+
+ const names={
+  infantry:"пехотинец",
+  assault:"штурмовик",
+  sniper:"снайпер",
+  apc:"бронемашина",
+  artillery:"артиллерийское орудие"
+ };
+
+ let cost=costs[type];
+
+ if(game.money<cost){
+
+  modal(
+   "Не хватает денег",
+   "Требуется 💰"+cost+"."
+  );
+
+  return;
+ }
+
+ if(type==="apc"||type==="artillery"){
+
+  if(game.metal<cost/2){
+
+   modal(
+    "Не хватает металла",
+    "Для производства требуется дополнительный металл."
+   );
+
+   return;
+  }
+
+  game.metal-=Math.floor(cost/2);
+ }
+
+ game.money-=cost;
+
+ game[type]++;
+
+ game.population+= type==="infantry" ? 1 : 2;
+
+ log(
+  "Подразделение готово: "+names[type]+".",
+  "good"
+ );
+
+ update();
+}
+
+function armyPower(){
+
+ let p=
+ game.infantry*12+
+ game.assault*20+
+ game.sniper*35+
+ game.apc*50+
+ game.artillery*80;
+
+ let bonus=
+ 1+
+ game.research.r1/1000+
+ game.research.r2/1000;
+
+ p=Math.floor(p*bonus);
+
+ $("armyPower").textContent=p;
+
+ return p;
+}
+
+/* =========================
+   BATTLE
+========================= */
+
+function openBattle(){
+
+ let power=armyPower();
+
+ let enemy=Math.floor(
+  100+
+  Math.random()*350
+ );
+
+ let chance=Math.max(
+  15,
+  Math.min(
+   90,
+   50+(power-enemy)/10
+  )
+ );
+
+ modal(
+  "⚔ Тренировочный бой",
+  `
+  <p>Сила вашей армии: <b>${power}</b></p>
+  <p>Сила противника: <b>${enemy}</b></p>
+  <p>Вероятность победы: <b>${Math.floor(chance)}%</b></p>
+  <br>
+  <button onclick="battle(${chance},${enemy})">
+   ⚔ Начать бой
+  </button>
+  `
+ );
+}
+
+function battle(chance,enemy){
+
+ let roll=Math.random()*100;
+
+ closeModal();
+
+ game.operations++;
+
+ if(roll<chance){
+
+  game.wins++;
+
+  let reward=500+Math.floor(Math.random()*700);
+
+  game.money+=reward;
+  game.xp+=25;
+
+  game.morale=Math.min(100,game.morale+3);
+
+  log(
+   "Победа! Захвачены трофеи на 💰"+reward+".",
+   "good"
+  );
+
+  modal(
+   "🏆 ПОБЕДА",
+   `
+   <p>Ваши войска успешно завершили операцию.</p>
+   <p>💰 +${reward}</p>
+   <p>⭐ +25 XP</p>
+   `
+  );
+
+ }else{
+
+  game.losses++;
+
+  game.morale=Math.max(0,game.morale-7);
+
+  let loss=Math.min(
+   game.infantry,
+   Math.max(1,Math.floor(game.infantry*.15))
+  );
+
+  game.infantry-=loss;
+
+  game.xp+=5;
+
+  log(
+   "Поражение. Потери пехоты: "+loss+".",
+   "bad"
+  );
+
+  modal(
+   "💀 ПОРАЖЕНИЕ",
+   `
+   <p>Операция провалена.</p>
+   <p>Потери: ${loss} бойцов.</p>
+   <p>⭐ +5 XP</p>
+   `
+  );
+ }
+
+ levelCheck();
+ update();
+}
+
+function levelCheck(){
+
+ let needed=game.level*100;
+
+ while(game.xp>=needed){
+
+  game.xp-=needed;
+
+  game.level++;
+
+  game.population+=10;
+
+  game.morale=Math.min(
+   100,
+   game.morale+10
+  );
+
+  log(
+   "Повышен уровень командования: "+game.level+"!",
+   "good"
+  );
+
+  needed=game.level*100;
+ }
+}
+
+/* =========================
+   MAP
+========================= */
+
+function attackNode(id){
+
+ const enemies={
+  1:0,
+  2:40,
+  3:75,
+  4:90,
+  5:160,
+  6:120,
+  7:300
+ };
+
+ if(id===1){
+
+  modal(
+   "Ваша база",
+   "Главный опорный пункт армии."
+  );
+
+  return;
+ }
+
+ let enemy=enemies[id];
+ let power=armyPower();
+
+ let chance=Math.max(
+  10,
+  Math.min(
+   95,
+   45+(power-enemy)/8
+  )
+ );
+
+ modal(
+  "⚔ Атака территории",
+  `
+  <p>Сила противника: <b>${enemy}</b></p>
+  <p>Сила армии: <b>${power}</b></p>
+  <p>Шанс успеха: <b>${Math.floor(chance)}%</b></p>
+  <br>
+  <button onclick="mapBattle(${id},${chance})">
+   🚩 Начать наступление
+  </button>
+  `
+ );
+}
+
+function mapBattle(id,chance){
+
+ closeModal();
+
+ game.operations++;
+
+ if(Math.random()*100<chance){
+
+  let reward=800+id*350;
+
+  game.money+=reward;
+  game.xp+=40+id*10;
+  game.wins++;
+
+  game.morale=Math.min(100,game.morale+5);
+
+  log(
+   "Территория №"+id+" захвачена! 💰+"+reward,
+   "good"
+  );
+
+  modal(
+   "🚩 ТЕРРИТОРИЯ ЗАХВАЧЕНА",
+   `
+   <p>Ваши войска заняли стратегическую позицию.</p>
+   <p>💰 +${reward}</p>
+   <p>⭐ +${40+id*10} XP</p>
+   `
+  );
+
+ }else{
+
+  game.losses++;
+
+  game.morale=Math.max(
+   0,
+   game.morale-10
+  );
+
+  let loss=Math.min(
+   game.infantry,
+   Math.max(2,Math.floor(game.infantry*.2))
+  );
+
+  game.infantry-=loss;
+
+  log(
+   "Наступление остановлено. Потери: "+loss,
+   "bad"
+  );
+
+  modal(
+   "Атака отбита",
+   "<p>Противник удержал позицию.</p><p>Потери: "+loss+" бойцов.</p>"
+  );
+ }
+
+ levelCheck();
+ update();
+}
+
+/* =========================
+   MISSIONS
+========================= */
+
+function mission(id){
+
+ const data={
+  1:{
+   name:"Разведка района",
+   money:500,
+   xp:20,
+   fuel:50
+  },
+  2:{
+   name:"Удар по складу",
+   money:1000,
+   xp:40,
+   fuel:100,
+   metal:300
+  },
+  3:{
+   name:"Прорыв линии",
+   money:2500,
+   xp:100,
+   fuel:200
+  },
+  4:{
+   name:"Генеральное наступление",
+   money:7500,
+   xp:300,
+   fuel:400
+  }
+ };
+
+ let m=data[id];
+
+ if(game.fuel<m.fuel){
+
+  modal(
+   "Не хватает топлива",
+   "Для этой операции необходимо ⛽"+m.fuel+"."
+  );
+
+  return;
+ }
+
+ game.fuel-=m.fuel;
+ game.money+=m.money;
+ game.xp+=m.xp;
+
+ if(m.metal)
+  game.metal+=m.metal;
+
+ game.operations++;
+
+ log(
+  "Миссия выполнена: "+m.name+".",
+  "good"
+ );
+
+ levelCheck();
+ update();
+
+ modal(
+  "🎯 МИССИЯ ВЫПОЛНЕНА",
+  `
+  <h3>${m.name}</h3>
+  <p>💰 +${m.money}</p>
+  <p>⭐ +${m.xp} XP</p>
+  ${m.metal?`<p>🔩 +${m.metal}</p>`:""}
+  `
+ );
+}
+
+/* =========================
+   SHOP
+========================= */
+
+function buy(type){
+
+ const items={
+  ammo:{cost:300,action(){
+   game.metal+=100;
+  }},
+  fuel:{cost:400,action(){
+   game.fuel+=250;
+  }},
+  repair:{cost:600,action(){
+   game.morale=Math.min(100,game.morale+8);
+  }},
+  intel:{cost:800,action(){
+   game.xp+=50;
+  }}
+ };
+
+ let item=items[type];
+
+ if(game.money<item.cost){
+
+  modal(
+   "Покупка невозможна",
+   "Недостаточно 💰."
+  );
+
+  return;
+ }
+
+ game.money-=item.cost;
+
+ item.action();
+
+ log(
+  "Приобретено снабжение.",
+  "good"
+ );
+
+ update();
+}
+
+/* =========================
+   RESEARCH
+========================= */
+
+function research(id){
+
+ let key="r"+id;
+
+ if(game.research[key]>=100){
+
+  modal(
+   "Исследование завершено",
+   "Эта технология уже изучена."
+  );
+
+  return;
+ }
+
+ let cost=
+  id===1?500:
+  id===2?800:
+  id===3?1000:
+  1500;
+
+ if(game.metal<cost){
+
+  modal(
+   "Недостаточно металла",
+   "Требуется 🔩"+cost+"."
+  );
+
+  return;
+ }
+
+ game.metal-=cost;
+
+ game.research[key]=Math.min(
+  100,
+  game.research[key]+25
+ );
+
+ log(
+  "Исследование продвинулось: "+game.research[key]+"%.",
+  "good"
+ );
+
+ update();
+}
+
+/* =========================
+   MODAL
+========================= */
+
+function modal(title,text){
+
+ $("modalTitle").textContent=title;
+ $("modalText").innerHTML=text;
+
+ $("modal").classList.add("open");
+}
+
+function closeModal(){
+
+ $("modal").classList.remove("open");
+}
+
+$("modal").addEventListener(
+ "click",
+ e=>{
+  if(e.target.id==="modal")
+   closeModal();
+ }
+);
+
+/* =========================
+   RESOURCE GENERATION
+========================= */
+
+setInterval(()=>{
+
+ game.money+=10;
+ game.metal+=5;
+ game.fuel+=3;
+ game.food+=4;
+
+ game.fuel=Math.min(game.fuel,9999);
+ game.metal=Math.min(game.metal,9999);
+ game.food=Math.min(game.food,9999);
+
+ update();
+
+},30000);
+
+/* =========================
+   START
+========================= */
+
+update();
+
+log(
+ "Система командования запущена.",
+ "good"
+);
+
+log(
+ "Добро пожаловать, командир.",
+ "warn"
+);
+
+</script>
+
+</body>
+</html>
